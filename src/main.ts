@@ -1,4 +1,3 @@
-import { Item } from '@omnivore-app/api'
 import { DateTime } from 'luxon'
 import {
   addIcon,
@@ -10,15 +9,15 @@ import {
   TFile,
   TFolder,
 } from 'obsidian'
-import { deleteItem, getItems } from './api'
-import { DEFAULT_SETTINGS, OmnivoreSettings } from './settings'
+import { deleteInfoFlowItem, fetchInfoFlowData } from './api'
+import { DEFAULT_SETTINGS, InfoFlowSettings } from './settings'
 import {
   preParseTemplate,
   render,
   renderFilename,
   renderItemContent,
 } from './settings/template'
-import { OmnivoreSettingTab } from './settingsTab'
+import { InfoFlowSettingTab } from './settingsTab'
 import {
   DATE_FORMAT,
   findFrontMatterIndex,
@@ -31,8 +30,8 @@ import {
   setOrUpdateHighlightColors,
 } from './util'
 
-export default class OmnivorePlugin extends Plugin {
-  settings: OmnivoreSettings
+export default class InfoFlowPlugin extends Plugin {
+  settings: InfoFlowSettings
 
   async onload() {
     await this.loadSettings()
@@ -45,7 +44,7 @@ export default class OmnivorePlugin extends Plugin {
       this.settings.version = latestVersion
       await this.saveSettings()
       // show release notes
-      const releaseNotes = `Omnivore plugin is upgraded to ${latestVersion}.
+      const releaseNotes = `InfoFlow plugin is upgraded to ${latestVersion}.
     
     What's new: https://github.com/omnivore-app/obsidian-omnivore/blob/main/CHANGELOG.md
     `
@@ -56,13 +55,13 @@ export default class OmnivorePlugin extends Plugin {
       id: 'sync',
       name: 'Sync new changes',
       callback: async () => {
-        await this.fetchOmnivore()
+        await this.fetchInfoFlow()
       },
     })
 
     this.addCommand({
       id: 'deleteArticle',
-      name: 'Delete Current Article from Omnivore',
+      name: 'Delete Current Article from InfoFlow',
       callback: async () => {
         await this.deleteCurrentItem(this.app.workspace.getActiveFile())
       },
@@ -74,12 +73,12 @@ export default class OmnivorePlugin extends Plugin {
       callback: async () => {
         this.settings.syncAt = ''
         await this.saveSettings()
-        new Notice('Omnivore Last Sync reset')
-        await this.fetchOmnivore()
+        new Notice('InfoFlow Last Sync reset')
+        await this.fetchInfoFlow()
       },
     })
 
-    const iconId = 'Omnivore'
+    const iconId = 'InfoFlow'
     // add icon
     addIcon(
       iconId,
@@ -89,17 +88,17 @@ export default class OmnivorePlugin extends Plugin {
     // This creates an icon in the left ribbon.
     this.addRibbonIcon(iconId, iconId, async (evt: MouseEvent) => {
       // Called when the user clicks the icon.
-      await this.fetchOmnivore()
+      await this.fetchInfoFlow()
     })
 
     // This adds a settings tab so the user can configure various aspects of the plugin
-    this.addSettingTab(new OmnivoreSettingTab(this.app, this))
+    this.addSettingTab(new InfoFlowSettingTab(this.app, this))
 
     this.scheduleSync()
 
     // sync when the app is loaded if syncOnStart is true
     if (this.settings.syncOnStart) {
-      await this.fetchOmnivore(false)
+      await this.fetchInfoFlow(false)
     }
   }
 
@@ -112,14 +111,14 @@ export default class OmnivorePlugin extends Plugin {
     if (this.settings.filter === 'ADVANCED') {
       this.settings.filter = 'ALL'
       console.log(
-        'obsidian-omnivore: advanced filter is replaced with all filter',
+        'obsidian-infoflow: advanced filter is replaced with all filter',
       )
       const customQuery = this.settings.customQuery
       this.settings.customQuery = `in:all ${
         customQuery ? `(${customQuery})` : ''
       }`
       console.log(
-        `obsidian-omnivore: custom query is set to ${this.settings.customQuery}`,
+        `obsidian-infoflow: custom query is set to ${this.settings.customQuery}`,
       )
       this.saveSettings()
     }
@@ -128,7 +127,7 @@ export default class OmnivorePlugin extends Plugin {
     if (!this.settings.customQuery) {
       this.settings.customQuery = getQueryFromFilter(this.settings.filter)
       console.log(
-        `obsidian-omnivore: custom query is set to ${this.settings.customQuery}`,
+        `obsidian-infoflow: custom query is set to ${this.settings.customQuery}`,
       )
       this.saveSettings()
     }
@@ -150,7 +149,7 @@ export default class OmnivorePlugin extends Plugin {
       // schedule new interval
       const intervalId = window.setInterval(
         async () => {
-          await this.fetchOmnivore(false)
+          await this.fetchInfoFlow(false)
         },
         frequency * 60 * 1000,
       )
@@ -192,7 +191,7 @@ export default class OmnivorePlugin extends Plugin {
     return file.path
   }
 
-  async fetchOmnivore(manualSync = true) {
+  async fetchInfoFlow(manualSync = true) {
     const {
       syncAt,
       apiKey,
@@ -213,7 +212,7 @@ export default class OmnivorePlugin extends Plugin {
     }
 
     if (!apiKey) {
-      new Notice('Missing Omnivore api key')
+      new Notice('Missing InfoFlow api key')
       return
     }
 
@@ -221,7 +220,7 @@ export default class OmnivorePlugin extends Plugin {
     await this.saveSettings()
 
     try {
-      console.log(`obsidian-omnivore starting sync since: '${syncAt}'`)
+      console.log(`obsidian-infoflow starting sync since: '${syncAt}'`)
 
       manualSync && new Notice('🚀 Fetching items ...')
 
@@ -238,7 +237,7 @@ export default class OmnivorePlugin extends Plugin {
 
       const size = 15
       for (let after = 0; ; after += size) {
-        const [items, hasNextPage] = await getItems(
+        const [items, hasNextPage] = await fetchInfoFlowData(
           this.settings.endpoint,
           apiKey,
           after,
@@ -253,9 +252,9 @@ export default class OmnivorePlugin extends Plugin {
           const folderName = replaceIllegalCharsFolder(
             normalizePath(render(item, folder, this.settings.folderDateFormat)),
           )
-          const omnivoreFolder =
+          const infoFlowFolder =
             this.app.vault.getAbstractFileByPath(folderName)
-          if (!(omnivoreFolder instanceof TFolder)) {
+          if (!(infoFlowFolder instanceof TFolder)) {
             await this.app.vault.createFolder(folderName)
           }
           const fileAttachment =
@@ -282,13 +281,13 @@ export default class OmnivorePlugin extends Plugin {
           )
           const pageName = `${folderName}/${customFilename}.md`
           const normalizedPath = normalizePath(pageName)
-          const omnivoreFile =
+          const infoFlowFile =
             this.app.vault.getAbstractFileByPath(normalizedPath)
-          if (omnivoreFile instanceof TFile) {
+          if (infoFlowFile instanceof TFile) {
             // file exists, so we might need to update it
             if (isSingleFile) {
               // sync into a single file
-              const existingContent = await this.app.vault.read(omnivoreFile)
+              const existingContent = await this.app.vault.read(infoFlowFile)
               // we need to remove the front matter
               const contentWithoutFrontmatter =
                 removeFrontMatterFromContent(content)
@@ -346,28 +345,28 @@ export default class OmnivorePlugin extends Plugin {
               )}---`
 
               await this.app.vault.modify(
-                omnivoreFile,
+                infoFlowFile,
                 `${newFrontMatterStr}\n\n${newContentWithoutFrontMatter}`,
               )
               continue
             }
             // sync into separate files
             await this.app.fileManager.processFrontMatter(
-              omnivoreFile,
+              infoFlowFile,
               async (frontMatter) => {
                 const id = frontMatter.id
                 if (id && id !== item.id) {
                   // this article has the same name but different id
                   const newPageName = `${folderName}/${customFilename}-${item.id}.md`
                   const newNormalizedPath = normalizePath(newPageName)
-                  const newOmnivoreFile =
+                  const newInfoFlowFile =
                     this.app.vault.getAbstractFileByPath(newNormalizedPath)
-                  if (newOmnivoreFile instanceof TFile) {
+                  if (newInfoFlowFile instanceof TFile) {
                     // a file with the same name and id already exists, so we need to update it
                     const existingContent =
-                      await this.app.vault.read(newOmnivoreFile)
+                      await this.app.vault.read(newInfoFlowFile)
                     if (existingContent !== content) {
-                      await this.app.vault.modify(newOmnivoreFile, content)
+                      await this.app.vault.modify(newInfoFlowFile, content)
                     }
                     return
                   }
@@ -376,9 +375,9 @@ export default class OmnivorePlugin extends Plugin {
                   return
                 }
                 // a file with the same id already exists, so we might need to update it
-                const existingContent = await this.app.vault.read(omnivoreFile)
+                const existingContent = await this.app.vault.read(infoFlowFile)
                 if (existingContent !== content) {
-                  await this.app.vault.modify(omnivoreFile, content)
+                  await this.app.vault.modify(infoFlowFile, content)
                 }
               },
             )
@@ -405,7 +404,7 @@ export default class OmnivorePlugin extends Plugin {
         }
       }
 
-      console.log('obsidian-omnivore sync completed', this.settings.syncAt)
+      console.log('obsidian-infoflow sync completed', this.settings.syncAt)
       manualSync && new Notice('🎉 Sync completed')
     } catch (e) {
       new Notice('Failed to fetch items')
@@ -427,16 +426,16 @@ export default class OmnivorePlugin extends Plugin {
     }
 
     try {
-      const isDeleted = deleteItem(
+      const isDeleted = deleteInfoFlowItem(
         this.settings.endpoint,
         this.settings.apiKey,
         itemId,
       )
       if (!isDeleted) {
-        new Notice('Failed to delete article in Omnivore')
+        new Notice('Failed to delete article in InfoFlow')
       }
     } catch (e) {
-      new Notice('Failed to delete article in Omnivore')
+      new Notice('Failed to delete article in InfoFlow')
       console.error(e)
     }
 

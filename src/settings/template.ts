@@ -1,4 +1,3 @@
-import { Item, ItemType } from '@omnivore-app/api'
 import { truncate } from 'lodash'
 import Mustache from 'mustache'
 import { parseYaml, stringifyYaml } from 'obsidian'
@@ -21,9 +20,9 @@ type FunctionMap = {
 }
 
 export const DEFAULT_TEMPLATE = `# {{{title}}}
-#Omnivore
+#InfoFlow
 
-[Read on Omnivore]({{{omnivoreUrl}}})
+[Read on InfoFlow]({{{infoFlowUrl}}})
 [Read Original]({{{originalUrl}}})
 
 {{#highlights.length}}
@@ -59,7 +58,7 @@ export type ArticleView =
   | {
       id: string
       title: string
-      omnivoreUrl: string
+      infoFlowUrl: string
       siteName: string
       originalUrl?: string
       author: string
@@ -71,7 +70,7 @@ export type ArticleView =
       fileAttachment?: string
       description?: string
       note?: string
-      type: ItemType
+      type: string
       dateRead?: string
       wordsCount?: number
       readLength?: number
@@ -86,14 +85,14 @@ export type View =
   | {
       id: string
       title: string
-      omnivoreUrl: string
+      infoFlowUrl: string
       siteName: string
       originalUrl: string
       author: string
       date: string
       dateSaved: string
       datePublished?: string
-      type: ItemType
+      type: string
       dateRead?: string
       state: string
       dateArchived?: string
@@ -107,12 +106,12 @@ enum ItemState {
   Archived = 'ARCHIVED',
 }
 
-const getItemState = (item: Item): string => {
+const getItemState = (item: any): string => {
   if (item.isArchived) {
     return ItemState.Archived
   }
-  if (item.readingProgressPercent > 0) {
-    return item.readingProgressPercent === 100
+  if (item.readingProgress > 0) {
+    return item.readingProgress === 100
       ? ItemState.Completed
       : ItemState.Reading
   }
@@ -159,12 +158,12 @@ const functionMap: FunctionMap = {
   formatDate: formatDateFunc,
 }
 
-const getOmnivoreUrl = (item: Item) => {
-  return `https://omnivore.app/me/${item.slug}`
+const getInfoFlowUrl = (item: any) => {
+  return `https://infoflow.com/me/${item.slug}`
 }
 
 export const renderFilename = (
-  item: Item,
+  item: any,
   filename: string,
   dateFormat: string,
 ) => {
@@ -184,7 +183,7 @@ export const renderLabels = (labels?: LabelView[]) => {
 }
 
 export const renderItemContent = async (
-  item: Item,
+  item: any,
   template: string,
   highlightOrder: string,
   highlightManagerId: HighlightManagerId | undefined,
@@ -197,10 +196,10 @@ export const renderItemContent = async (
 ) => {
   // filter out notes and redactions
   const itemHighlights =
-    item.highlights?.filter((h) => h.type === 'HIGHLIGHT') || []
+    item.highlights?.filter((h: any) => h.type === 'HIGHLIGHT') || []
   // sort highlights by location if selected in options
   if (highlightOrder === 'LOCATION') {
-    itemHighlights.sort((a, b) => {
+    itemHighlights.sort((a: any, b: any) => {
       try {
         if (item.pageType === 'FILE') {
           // sort by location in file
@@ -214,7 +213,7 @@ export const renderItemContent = async (
       }
     })
   }
-  const highlights: HighlightView[] = itemHighlights.map((highlight) => {
+  const highlights: HighlightView[] = itemHighlights.map((highlight: any) => {
     const highlightColor = highlight.color ?? 'yellow'
     const highlightRenderOption = highlightManagerId
       ? {
@@ -228,7 +227,7 @@ export const renderItemContent = async (
         template,
         highlightRenderOption,
       ),
-      highlightUrl: `https://omnivore.app/me/${item.slug}#${highlight.id}`,
+      highlightUrl: `https://infoflow.com/me/${item.slug}#${highlight.id}`,
       highlightID: highlight.id.slice(0, 8),
       dateHighlighted: highlight.updatedAt
         ? formatDate(highlight.updatedAt, dateHighlightedFormat)
@@ -249,7 +248,7 @@ export const renderItemContent = async (
   const datePublished = publishedAt
     ? formatDate(publishedAt, dateSavedFormat).trim()
     : undefined
-  const articleNote = item.highlights?.find((h) => h.type === 'NOTE')
+  const articleNote = item.highlights?.find((h: any) => h.type === 'NOTE')
   const dateRead = item.readAt
     ? formatDate(item.readAt, dateSavedFormat).trim()
     : undefined
@@ -260,7 +259,7 @@ export const renderItemContent = async (
   const articleView: ArticleView = {
     id: item.id,
     title: item.title,
-    omnivoreUrl: `https://omnivore.app/me/${item.slug}`,
+    infoFlowUrl: `https://infoflow.com/me/${item.slug}`,
     siteName,
     originalUrl: item.originalArticleUrl || item.url,
     author: item.author || 'unknown',
@@ -308,7 +307,7 @@ export const renderItemContent = async (
       // and add the error to the front matter
       frontMatter = {
         ...frontMatter,
-        omnivore_error:
+        infoFlow_error:
           'There was an error parsing the front matter template. See console for details.',
       }
     }
@@ -360,7 +359,7 @@ export const renderItemContent = async (
   return `${frontMatterStr}\n\n${contentWithoutFrontMatter}`
 }
 
-export const render = (item: Item, template: string, dateFormat: string) => {
+export const render = (item: any, template: string, dateFormat: string) => {
   const dateSaved = formatDate(item.savedAt, dateFormat)
   const datePublished = item.publishedAt
     ? formatDate(item.publishedAt, dateFormat).trim()
@@ -376,7 +375,7 @@ export const render = (item: Item, template: string, dateFormat: string) => {
     siteName:
       item.siteName || siteNameFromUrl(item.originalArticleUrl || item.url),
     author: item.author || 'unknown',
-    omnivoreUrl: getOmnivoreUrl(item),
+    infoFlowUrl: getInfoFlowUrl(item),
     originalUrl: item.originalArticleUrl || item.url,
     date: dateSaved,
     dateSaved,
