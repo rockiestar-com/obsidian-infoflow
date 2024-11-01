@@ -14,7 +14,7 @@ import {
   HighlightManagerId,
   HighlightOrder,
 } from './settings'
-import { getQueryFromFilter, setOrUpdateHighlightColors } from './util'
+import { setOrUpdateHighlightColors } from './util'
 import { HighlightColors } from './api'
 
 export class InfoFlowSettingTab extends PluginSettingTab {
@@ -72,39 +72,24 @@ export class InfoFlowSettingTab extends PluginSettingTab {
           .setValue(this.plugin.settings.filter)
           .onChange(async (value) => {
             this.plugin.settings.filter = value
-            this.plugin.settings.customQuery = getQueryFromFilter(value)
             this.plugin.settings.syncAt = ''
             await this.plugin.saveSettings()
             this.display()
           })
       })
 
-    new Setting(containerEl)
-      .setName('Custom Query')
-      .setDesc(
-        createFragment((fragment) => {
-          fragment.append(
-            'See ',
-            fragment.createEl('a', {
-              text: 'https://docs.infoflow.com/using/search',
-              href: 'https://docs.infoflow.com/using/search',
-            }),
-            " for more info on search query syntax. Changing this would reset the 'Last Sync' timestamp",
-          )
-        }),
-      )
-      .addText((text) =>
-        text
-          .setPlaceholder(
-            'Enter an InfoFlow custom search query if advanced filter is selected',
-          )
-          .setValue(this.plugin.settings.customQuery)
-          .onChange(async (value) => {
-            this.plugin.settings.customQuery = value
-            this.plugin.settings.syncAt = ''
-            await this.plugin.saveSettings()
+    new Setting(containerEl).setName('Custom Query').setDesc(
+      createFragment((fragment) => {
+        fragment.append(
+          'See ',
+          fragment.createEl('a', {
+            text: 'https://docs.infoflow.com/using/search',
+            href: 'https://docs.infoflow.com/using/search',
           }),
-      )
+          " for more info on search query syntax. Changing this would reset the 'Last Sync' timestamp",
+        )
+      }),
+    )
 
     /**
      * Sync Options, such as folder location, file format, etc.

@@ -2,15 +2,14 @@ import { truncate } from 'lodash'
 import Mustache from 'mustache'
 import { parseYaml, stringifyYaml } from 'obsidian'
 import {
-  compareHighlightsInFile,
   formatDate,
   formatHighlightQuote,
-  getHighlightLocation,
   removeFrontMatterFromContent,
   siteNameFromUrl,
   snakeToCamelCase,
 } from '../util'
 import { HighlightManagerId } from '.'
+import { Highlight, Item } from 'src/types'
 
 type FunctionMap = {
   [key: string]: () => (
@@ -50,8 +49,6 @@ export interface HighlightView {
   note?: string
   labels?: LabelView[]
   color: string
-  positionPercent: number
-  positionAnchorIndex: number
 }
 
 export type ArticleView =
@@ -70,7 +67,7 @@ export type ArticleView =
       fileAttachment?: string
       description?: string
       note?: string
-      type: string
+      // type: string
       dateRead?: string
       wordsCount?: number
       readLength?: number
@@ -106,7 +103,7 @@ enum ItemState {
   Archived = 'ARCHIVED',
 }
 
-const getItemState = (item: any): string => {
+const getItemState = (item: Item): string => {
   if (item.isArchived) {
     return ItemState.Archived
   }
@@ -175,17 +172,16 @@ export const renderFilename = (
   })
 }
 
-export const renderLabels = (labels?: LabelView[]) => {
+export const renderLabels = (labels?: string[]) => {
   return labels?.map((l) => ({
     // replace spaces with underscores because Obsidian doesn't allow spaces in tags
-    name: l.name.replaceAll(' ', '_'),
+    name: l.replaceAll(' ', '_'),
   }))
 }
 
 export const renderItemContent = async (
-  item: any,
+  item: Item,
   template: string,
-  highlightOrder: string,
   highlightManagerId: HighlightManagerId | undefined,
   dateHighlightedFormat: string,
   dateSavedFormat: string,
@@ -195,52 +191,34 @@ export const renderItemContent = async (
   fileAttachment?: string,
 ) => {
   // filter out notes and redactions
-  const itemHighlights =
-    item.highlights?.filter((h: any) => h.type === 'HIGHLIGHT') || []
-  // sort highlights by location if selected in options
-  if (highlightOrder === 'LOCATION') {
-    itemHighlights.sort((a: any, b: any) => {
-      try {
-        if (item.pageType === 'FILE') {
-          // sort by location in file
-          return compareHighlightsInFile(a, b)
-        }
-        // for web page, sort by location in the page
-        return getHighlightLocation(a.patch) - getHighlightLocation(b.patch)
-      } catch (e) {
-        console.error(e)
-        return compareHighlightsInFile(a, b)
+  const itemHighlights = item.highlights || []
+
+  const highlights: HighlightView[] = itemHighlights.map(
+    (highlight: Highlight) => {
+      const highlightColor = highlight.color ?? 'yellow'
+      const highlightRenderOption = highlightManagerId
+        ? {
+            highlightColor: highlightColor,
+            highlightManagerId: highlightManagerId,
+          }
+        : null
+      return {
+        text: formatHighlightQuote(
+          highlight.quote,
+          template,
+          highlightRenderOption,
+        ),
+        highlightUrl: `https://infoflow.com/me/${item.slug}#${highlight.id}`,
+        highlightID: highlight.id.slice(0, 8),
+        dateHighlighted: highlight.updatedAt
+          ? formatDate(highlight.updatedAt, dateHighlightedFormat)
+          : undefined,
+        note: highlight.annotation ?? undefined,
+        labels: renderLabels(highlight.tags || undefined),
+        color: highlightColor,
       }
-    })
-  }
-  const highlights: HighlightView[] = itemHighlights.map((highlight: any) => {
-    const highlightColor = highlight.color ?? 'yellow'
-    const highlightRenderOption = highlightManagerId
-      ? {
-          highlightColor: highlightColor,
-          highlightManagerId: highlightManagerId,
-        }
-      : null
-    return {
-      text: formatHighlightQuote(
-        highlight.quote,
-        template,
-        highlightRenderOption,
-      ),
-      highlightUrl: `https://infoflow.com/me/${item.slug}#${highlight.id}`,
-      highlightID: highlight.id.slice(0, 8),
-      dateHighlighted: highlight.updatedAt
-        ? formatDate(highlight.updatedAt, dateHighlightedFormat)
-        : undefined,
-      note: highlight.annotation ?? undefined,
-      labels: renderLabels(highlight.labels || undefined),
-      color: highlightColor,
-      positionPercent: highlight.highlightPositionPercent || 0,
-      positionAnchorIndex: highlight.highlightPositionAnchorIndex
-        ? highlight.highlightPositionAnchorIndex + 1
-        : 0, // PDF page numbers start at 1
-    }
-  })
+    },
+  )
   const dateSaved = formatDate(item.savedAt, dateSavedFormat)
   const siteName =
     item.siteName || siteNameFromUrl(item.originalArticleUrl || item.url)
@@ -248,7 +226,6 @@ export const renderItemContent = async (
   const datePublished = publishedAt
     ? formatDate(publishedAt, dateSavedFormat).trim()
     : undefined
-  const articleNote = item.highlights?.find((h: any) => h.type === 'NOTE')
   const dateRead = item.readAt
     ? formatDate(item.readAt, dateSavedFormat).trim()
     : undefined
@@ -263,7 +240,7 @@ export const renderItemContent = async (
     siteName,
     originalUrl: item.originalArticleUrl || item.url,
     author: item.author || 'unknown',
-    labels: renderLabels(item.labels || undefined),
+    labels: renderLabels(item.tags || undefined),
     dateSaved,
     highlights,
     content:
@@ -271,8 +248,8 @@ export const renderItemContent = async (
     datePublished,
     fileAttachment,
     description: item.description || undefined,
-    note: articleNote?.annotation ?? undefined,
-    type: item.pageType,
+    note: item.itemNote || undefined,
+    // type: item.pageType,
     dateRead,
     wordsCount: item.wordsCount || undefined,
     readLength,

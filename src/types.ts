@@ -1,40 +1,49 @@
-export interface Item {
-  id: string;
-  title: string;
-  infoFlowUrl: string;
-  siteName: string;
-  originalUrl?: string;
-  author: string;
-  labels?: LabelView[];
-  dateSaved: string;
-  highlights: HighlightView[];
-  content?: string;
-  datePublished?: string;
-  fileAttachment?: string;
-  description?: string;
-  note?: string;
-  type: string;
-  dateRead?: string;
-  wordsCount?: number;
-  readLength?: number;
-  state: string;
-  dateArchived?: string;
-  image?: string;
-  updatedAt?: string;
-}
-
 export interface LabelView {
-  name: string;
+  name: string
 }
 
 export interface HighlightView {
-  text: string;
-  highlightUrl: string;
-  highlightID: string;
-  dateHighlighted?: string;
-  note?: string;
-  labels?: LabelView[];
-  color: string;
-  positionPercent: number;
-  positionAnchorIndex: number;
+  text: string
+  highlightUrl: string
+  highlightID: string
+  dateHighlighted?: string
+  note?: string
+  labels?: LabelView[]
+  color: string
+  positionPercent: number
+  positionAnchorIndex: number
+}
+
+export interface Highlight {
+  id: string
+  quote: string | null
+  annotation: string | null
+  updatedAt: string | null
+  tags: string[] | null
+  color: string | null
+}
+
+export interface Item {
+  id: string
+  title: string
+  itemNote: string | null
+  readingProgress: number
+  siteName: string | null
+  originalArticleUrl: string | null
+  author: string | null
+  description: string | null
+  slug: string
+  tags: string[] | null
+  highlights: Highlight[] | null
+  updatedAt: string | null
+  savedAt: string
+  content: string | null
+  publishedAt: string | null
+  url: string
+  image: string | null
+  readAt: string | null
+  wordsCount: number | null
+  isArchived: boolean
+  archivedAt: string | null
+  contentReader: string | null
 }

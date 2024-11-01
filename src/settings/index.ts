@@ -46,13 +46,12 @@ export const DEFAULT_SETTINGS: InfoFlowSettings = {
   apiKey: '',
   filter: 'ALL',
   syncAt: '',
-  customQuery: '',
   template: DEFAULT_TEMPLATE,
   highlightOrder: 'LOCATION',
   syncing: false,
   folder: 'InfoFlow/{{{date}}}',
   folderDateFormat: 'yyyy-MM-dd',
-  endpoint: 'https://api.infoflow.com/graphql',
+  endpoint: 'https://app.infoflow.app',
   filename: '{{{title}}}',
   filenameDateFormat: 'yyyy-MM-dd',
   attachmentFolder: 'InfoFlow/attachments',
@@ -77,7 +76,6 @@ export interface InfoFlowSettings {
   apiKey: string
   filter: string
   syncAt: string
-  customQuery: string
   highlightOrder: string
   template: string
   syncing: boolean

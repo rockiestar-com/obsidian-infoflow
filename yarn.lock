@@ -2,11 +2,6 @@
 # yarn lockfile v1
 
 
-"@0no-co/graphql.web@^1.0.1", "@0no-co/graphql.web@^1.0.4":
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/@0no-co/graphql.web/-/graphql.web-1.0.4.tgz#9606eb651955499525d068ce0ad8bea596286ce2"
-  integrity sha512-W3ezhHGfO0MS1PtGloaTpg0PbaT8aZSmmaerL7idtU5F7oCI+uu25k+MsMS31BVFlp4aMkHSrNRxiD72IlK8TA==
-
 "@aashutoshrathi/word-wrap@^1.2.3":
   version "1.2.6"
   resolved "https://registry.yarnpkg.com/@aashutoshrathi/word-wrap/-/word-wrap-1.2.6.tgz#bd9154aec9983f77b3a034ecaa015c2e4201f6cf"
@@ -348,14 +343,6 @@
   version "1.1.3"
   resolved "https://registry.yarnpkg.com/@gar/promisify/-/promisify-1.1.3.tgz#555193ab2e3bb3b6adc3d551c9c030d9e860daf6"
   integrity sha512-k2Ty1JcVojjJFwrg/ThKi2ujJ7XNLYaFGNB/bWT9wGR+oSMJHMa5w+CUq6p/pVrKeNNgA7pCqEcjSnHVoqJQFw==
-
-"@gql.tada/cli-utils@0.1.0":
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@gql.tada/cli-utils/-/cli-utils-0.1.0.tgz#7987c7930fe0b7d02d22f3d5d815ae2eb2eff247"
-  integrity sha512-hM1u0eZlCBuMQ26q3D/dzbsdEK98pbhhJLLa3xJWGLHmsRiySijyoKTIMrBhdqV2v5LvQP2dX/6k1rvQt2Mvhg==
-  dependencies:
-    "@urql/introspection" "^1.0.3"
-    graphql "^16.8.1"
 
 "@humanwhocodes/config-array@^0.11.14":
   version "0.11.14"
@@ -912,14 +899,6 @@
   dependencies:
     "@octokit/openapi-types" "^18.0.0"
 
-"@omnivore-app/api@^1.0.3":
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/@omnivore-app/api/-/api-1.0.3.tgz#ac517fae8d371949b9117c64d7e52f6f7a78b485"
-  integrity sha512-KhCIdRFgxuh1Ztz3+8m2Ys9O0x2dFZffVBBrwOOV3E14mGoXNKfaIyncjK9xi/8TopQrq6+8ekwfMyoiWxxeaA==
-  dependencies:
-    "@urql/core" "^4.3.0"
-    gql.tada "^1.3.1"
-
 "@pkgr/core@^0.1.0":
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/@pkgr/core/-/core-0.1.1.tgz#1ec17e2edbec25c8306d424ecfbf13c7de1aaa31"
@@ -1326,19 +1305,6 @@
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/@ungap/structured-clone/-/structured-clone-1.2.0.tgz#756641adb587851b5ccb3e095daf27ae581c8406"
   integrity sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==
-
-"@urql/core@^4.3.0":
-  version "4.3.0"
-  resolved "https://registry.yarnpkg.com/@urql/core/-/core-4.3.0.tgz#5e150412ed08d167861b05ceed417abbd048553f"
-  integrity sha512-wT+FeL8DG4x5o6RfHEnONNFVDM3616ouzATMYUClB6CB+iIu2mwfBKd7xSUxYOZmwtxna5/hDRQdMl3nbQZlnw==
-  dependencies:
-    "@0no-co/graphql.web" "^1.0.1"
-    wonka "^6.3.2"
-
-"@urql/introspection@^1.0.3":
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/@urql/introspection/-/introspection-1.0.3.tgz#e35ffe8aa03e91df7472b07d7d730d8bb029ec10"
-  integrity sha512-5zgnfUDV10c3qudqYvfZ/rOtWVB2QvqanmoDMttqpt+TCCPkSUZdb2qcLCEB6DL7ph8mQRTZhXI29J57nTnqKg==
 
 JSONStream@^1.0.4:
   version "1.3.5"
@@ -2794,14 +2760,6 @@ globby@^11.0.0, globby@^11.0.1, globby@^11.1.0:
     merge2 "^1.4.1"
     slash "^3.0.0"
 
-gql.tada@^1.3.1:
-  version "1.3.1"
-  resolved "https://registry.yarnpkg.com/gql.tada/-/gql.tada-1.3.1.tgz#3635b1facef4c800daef9a94a4aa6d59018e4686"
-  integrity sha512-9+L2v5bi/QOFJmDnqsvr1bRryuso1ZqdfKiZT+5V8LB92iUICC+05TwmF2iUiQFdjp1IWgUOYjhrhjUFMIJILw==
-  dependencies:
-    "@0no-co/graphql.web" "^1.0.4"
-    "@gql.tada/cli-utils" "0.1.0"
-
 graceful-fs@4.2.10:
   version "4.2.10"
   resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.2.10.tgz#147d3a006da4ca3ce14728c7aefc287c367d7a6c"
@@ -2816,11 +2774,6 @@ graphemer@^1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/graphemer/-/graphemer-1.4.0.tgz#fb2f1d55e0e3a1849aeffc90c4fa0dd53a0e66c6"
   integrity sha512-EtKwoO6kxCL9WO5xipiHTZlSzBm7WLT627TqC/uVRd0HKmq8NXyebnNYxDoBi7wt8eTWrUrKXCOVaFq9x1kgag==
-
-graphql@^16.8.1:
-  version "16.8.1"
-  resolved "https://registry.yarnpkg.com/graphql/-/graphql-16.8.1.tgz#1930a965bef1170603702acdb68aedd3f3cf6f07"
-  integrity sha512-59LZHPdGZVh695Ud9lRzPBVTtlX9ZCV150Er2W43ro37wVof0ctenSaskPPjN7lVTIN8mSZt8PHUNKZuNQUuxw==
 
 handlebars@^4.7.7:
   version "4.7.8"
@@ -5728,11 +5681,6 @@ wide-align@^1.1.5:
   integrity sha512-eDMORYaPNZ4sQIuuYPDHdQvf4gyCF9rEEV/yPxGfwPkRodwEgiMUUXTx/dex+Me0wxx53S+NgUHaP7y3MGlDmg==
   dependencies:
     string-width "^1.0.2 || 2 || 3 || 4"
-
-wonka@^6.3.2:
-  version "6.3.4"
-  resolved "https://registry.yarnpkg.com/wonka/-/wonka-6.3.4.tgz#76eb9316e3d67d7febf4945202b5bdb2db534594"
-  integrity sha512-CjpbqNtBGNAeyNS/9W6q3kSkKE52+FjIj7AkFlLr11s/VWGUu6a2CdYSdGxocIhIVjaW/zchesBQUKPVU69Cqg==
 
 wordwrap@^1.0.0:
   version "1.0.0"

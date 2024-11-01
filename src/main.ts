@@ -4,7 +4,6 @@ import {
   normalizePath,
   Notice,
   Plugin,
-  requestUrl,
   stringifyYaml,
   TFile,
   TFolder,
@@ -21,7 +20,6 @@ import { InfoFlowSettingTab } from './settingsTab'
 import {
   DATE_FORMAT,
   findFrontMatterIndex,
-  getQueryFromFilter,
   parseDateTime,
   parseFrontMatterFromContent,
   removeFrontMatterFromContent,
@@ -113,24 +111,10 @@ export default class InfoFlowPlugin extends Plugin {
       console.log(
         'obsidian-infoflow: advanced filter is replaced with all filter',
       )
-      const customQuery = this.settings.customQuery
-      this.settings.customQuery = `in:all ${
-        customQuery ? `(${customQuery})` : ''
-      }`
-      console.log(
-        `obsidian-infoflow: custom query is set to ${this.settings.customQuery}`,
-      )
+
       this.saveSettings()
     }
 
-    // for backward compatibility, set custom query from filter
-    if (!this.settings.customQuery) {
-      this.settings.customQuery = getQueryFromFilter(this.settings.filter)
-      console.log(
-        `obsidian-infoflow: custom query is set to ${this.settings.customQuery}`,
-      )
-      this.saveSettings()
-    }
     // initialize css highlight color variables
     setOrUpdateHighlightColors(this.settings.highlightColorMapping)
   }
@@ -161,42 +145,41 @@ export default class InfoFlowPlugin extends Plugin {
     }
   }
 
-  async downloadFileAsAttachment(item: Item): Promise<string> {
-    // download pdf from the URL to the attachment folder
-    const url = item.url
-    const response = await requestUrl({
-      url,
-      contentType: 'application/pdf',
-    })
-    const folderName = normalizePath(
-      render(
-        item,
-        this.settings.attachmentFolder,
-        this.settings.folderDateFormat,
-      ),
-    )
-    const folder = this.app.vault.getAbstractFileByPath(folderName)
-    if (!(folder instanceof TFolder)) {
-      await this.app.vault.createFolder(folderName)
-    }
-    const fileName = normalizePath(`${folderName}/${item.id}.pdf`)
-    const file = this.app.vault.getAbstractFileByPath(fileName)
-    if (!(file instanceof TFile)) {
-      const newFile = await this.app.vault.createBinary(
-        fileName,
-        response.arrayBuffer,
-      )
-      return newFile.path
-    }
-    return file.path
-  }
+  // async downloadFileAsAttachment(item: Item): Promise<string> {
+  //   // download pdf from the URL to the attachment folder
+  //   const url = item.url
+  //   const response = await requestUrl({
+  //     url,
+  //     contentType: 'application/pdf',
+  //   })
+  //   const folderName = normalizePath(
+  //     render(
+  //       item,
+  //       this.settings.attachmentFolder,
+  //       this.settings.folderDateFormat,
+  //     ),
+  //   )
+  //   const folder = this.app.vault.getAbstractFileByPath(folderName)
+  //   if (!(folder instanceof TFolder)) {
+  //     await this.app.vault.createFolder(folderName)
+  //   }
+  //   const fileName = normalizePath(`${folderName}/${item.id}.pdf`)
+  //   const file = this.app.vault.getAbstractFileByPath(fileName)
+  //   if (!(file instanceof TFile)) {
+  //     const newFile = await this.app.vault.createBinary(
+  //       fileName,
+  //       response.arrayBuffer,
+  //     )
+  //     return newFile.path
+  //   }
+  //   return file.path
+  // }
 
   async fetchInfoFlow(manualSync = true) {
     const {
       syncAt,
       apiKey,
-      customQuery,
-      highlightOrder,
+      // highlightOrder,
       syncing,
       template,
       folder,
@@ -226,26 +209,17 @@ export default class InfoFlowPlugin extends Plugin {
 
       // pre-parse template
       frontMatterTemplate && preParseTemplate(frontMatterTemplate)
-      const templateSpans = preParseTemplate(template)
-      // check if we need to include content or file attachment
-      const includeContent = templateSpans.some(
-        (templateSpan) => templateSpan[1] === 'content',
-      )
-      const includeFileAttachment = templateSpans.some(
-        (templateSpan) => templateSpan[1] === 'fileAttachment',
-      )
 
       const size = 15
-      for (let after = 0; ; after += size) {
+      for (let offset = 0; ; offset += size) {
         const [items, hasNextPage] = await fetchInfoFlowData(
           this.settings.endpoint,
           apiKey,
-          after,
-          size,
-          parseDateTime(syncAt).toISO() || undefined,
-          customQuery,
-          includeContent,
-          'highlightedMarkdown',
+          {
+            offset,
+            lastSync: parseDateTime(syncAt).toISO() || undefined,
+            size,
+          },
         )
 
         for (const item of items) {
@@ -257,14 +231,14 @@ export default class InfoFlowPlugin extends Plugin {
           if (!(infoFlowFolder instanceof TFolder)) {
             await this.app.vault.createFolder(folderName)
           }
-          const fileAttachment =
-            item.pageType === 'FILE' && includeFileAttachment
-              ? await this.downloadFileAsAttachment(item)
-              : undefined
+          // const fileAttachment =
+          //   item.pageType === 'FILE' && includeFileAttachment
+          //     ? await this.downloadFileAsAttachment(item)
+          //     : undefined
           const content = await renderItemContent(
             item,
             template,
-            highlightOrder,
+            // highlightOrder,
             this.settings.enableHighlightColorRender
               ? this.settings.highlightManagerId
               : undefined,
@@ -273,7 +247,6 @@ export default class InfoFlowPlugin extends Plugin {
             isSingleFile,
             frontMatterVariables,
             frontMatterTemplate,
-            fileAttachment,
           )
           // use the custom filename
           const customFilename = replaceIllegalCharsFile(
