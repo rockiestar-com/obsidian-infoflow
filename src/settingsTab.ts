@@ -9,8 +9,8 @@ import InfoFlowPlugin from './main'
 import { FolderSuggest } from './settings/file-suggest'
 import {
   DEFAULT_SETTINGS,
-  FRONT_MATTER_VARIABLES,
-  Filter,
+  // FRONT_MATTER_VARIABLES,
+  // Filter,
   HighlightManagerId,
   HighlightOrder,
 } from './settings'
@@ -38,10 +38,10 @@ export class InfoFlowSettingTab extends PluginSettingTab {
       .setDesc(
         createFragment((fragment) => {
           fragment.append(
-            'You can create an API key at ',
+            'You can create an API key (Personal Access Token) at ',
             fragment.createEl('a', {
-              text: 'https://infoflow.com/settings/api',
-              href: 'https://infoflow.com/settings/api',
+              text: 'https://web.infoflow.app/settings/pat',
+              href: 'https://web.infoflow.app/settings/pat',
             }),
           )
         }),
@@ -61,35 +61,35 @@ export class InfoFlowSettingTab extends PluginSettingTab {
      **/
     containerEl.createEl('h3', { text: 'Query' })
 
-    new Setting(containerEl)
-      .setName('Filter')
-      .setDesc(
-        "Select an InfoFlow search filter type. Changing this would update the 'Custom Query' accordingly and reset the 'Last sync' timestamp",
-      )
-      .addDropdown((dropdown) => {
-        dropdown.addOptions(Filter)
-        dropdown
-          .setValue(this.plugin.settings.filter)
-          .onChange(async (value) => {
-            this.plugin.settings.filter = value
-            this.plugin.settings.syncAt = ''
-            await this.plugin.saveSettings()
-            this.display()
-          })
-      })
+    // new Setting(containerEl)
+    //   .setName('Filter')
+    //   .setDesc(
+    //     "Select an InfoFlow search filter type. Changing this would update the 'Custom Query' accordingly and reset the 'Last sync' timestamp",
+    //   )
+    //   .addDropdown((dropdown) => {
+    //     dropdown.addOptions(Filter)
+    //     dropdown
+    //       .setValue(this.plugin.settings.filter)
+    //       .onChange(async (value) => {
+    //         this.plugin.settings.filter = value
+    //         this.plugin.settings.syncAt = ''
+    //         await this.plugin.saveSettings()
+    //         this.display()
+    //       })
+    //   })
 
-    new Setting(containerEl).setName('Custom Query').setDesc(
-      createFragment((fragment) => {
-        fragment.append(
-          'See ',
-          fragment.createEl('a', {
-            text: 'https://docs.infoflow.com/using/search',
-            href: 'https://docs.infoflow.com/using/search',
-          }),
-          " for more info on search query syntax. Changing this would reset the 'Last Sync' timestamp",
-        )
-      }),
-    )
+    // new Setting(containerEl).setName('Custom Query').setDesc(
+    //   createFragment((fragment) => {
+    //     fragment.append(
+    //       'See ',
+    //       fragment.createEl('a', {
+    //         text: 'https://docs.infoflow.com/using/search',
+    //         href: 'https://docs.infoflow.com/using/search',
+    //       }),
+    //       " for more info on search query syntax. Changing this would reset the 'Last Sync' timestamp",
+    //     )
+    //   }),
+    // )
 
     /**
      * Sync Options, such as folder location, file format, etc.
@@ -260,44 +260,44 @@ export class InfoFlowSettingTab extends PluginSettingTab {
      **/
     containerEl.createEl('h3', { text: 'Article' })
 
-    new Setting(containerEl)
-      .setName('Front Matter')
-      .setDesc(
-        createFragment((fragment) => {
-          fragment.append(
-            'Enter the metadata to be used in your note separated by commas. You can also use custom aliases in the format of metatdata::alias, e.g. date_saved::date. ',
-            fragment.createEl('br'),
-            fragment.createEl('br'),
-            'Available metadata can be found at ',
-            fragment.createEl('a', {
-              text: 'Reference',
-              href: 'https://docs.infoflow.com/integrations/obsidian.html#front-matter',
-            }),
-            fragment.createEl('br'),
-            fragment.createEl('br'),
-            'If you want to use a custom front matter template, you can enter it below under the advanced settings',
-          )
-        }),
-      )
-      .addTextArea((text) => {
-        text
-          .setPlaceholder('Enter the metadata')
-          .setValue(this.plugin.settings.frontMatterVariables.join(','))
-          .onChange(async (value) => {
-            // validate front matter variables and deduplicate
-            this.plugin.settings.frontMatterVariables = value
-              .split(',')
-              .map((v) => v.trim())
-              .filter(
-                (v, i, a) =>
-                  FRONT_MATTER_VARIABLES.includes(v.split('::')[0]) &&
-                  a.indexOf(v) === i,
-              )
-            await this.plugin.saveSettings()
-          })
-        text.inputEl.setAttr('rows', 4)
-        text.inputEl.setAttr('cols', 30)
-      })
+    // new Setting(containerEl)
+    //   .setName('Front Matter')
+    //   .setDesc(
+    //     createFragment((fragment) => {
+    //       fragment.append(
+    //         'Enter the metadata to be used in your note separated by commas. You can also use custom aliases in the format of metatdata::alias, e.g. date_saved::date. ',
+    //         fragment.createEl('br'),
+    //         fragment.createEl('br'),
+    //         'Available metadata can be found at ',
+    //         fragment.createEl('a', {
+    //           text: 'Reference',
+    //           href: 'https://docs.infoflow.com/integrations/obsidian.html#front-matter',
+    //         }),
+    //         fragment.createEl('br'),
+    //         fragment.createEl('br'),
+    //         'If you want to use a custom front matter template, you can enter it below under the advanced settings',
+    //       )
+    //     }),
+    //   )
+    //   .addTextArea((text) => {
+    //     text
+    //       .setPlaceholder('Enter the metadata')
+    //       .setValue(this.plugin.settings.frontMatterVariables.join(','))
+    //       .onChange(async (value) => {
+    //         // validate front matter variables and deduplicate
+    //         this.plugin.settings.frontMatterVariables = value
+    //           .split(',')
+    //           .map((v) => v.trim())
+    //           .filter(
+    //             (v, i, a) =>
+    //               FRONT_MATTER_VARIABLES.includes(v.split('::')[0]) &&
+    //               a.indexOf(v) === i,
+    //           )
+    //         await this.plugin.saveSettings()
+    //       })
+    //     text.inputEl.setAttr('rows', 4)
+    //     text.inputEl.setAttr('cols', 30)
+    //   })
 
     new Setting(containerEl)
       .setName('Article Template')
