@@ -5,7 +5,7 @@ import {
   PluginSettingTab,
   Setting,
 } from 'obsidian'
-import OmnivorePlugin from './main'
+import InfoFlowPlugin from './main'
 import { FolderSuggest } from './settings/file-suggest'
 import {
   DEFAULT_SETTINGS,
@@ -17,10 +17,10 @@ import {
 import { getQueryFromFilter, setOrUpdateHighlightColors } from './util'
 import { HighlightColors } from './api'
 
-export class OmnivoreSettingTab extends PluginSettingTab {
-  plugin: OmnivorePlugin
+export class InfoFlowSettingTab extends PluginSettingTab {
+  plugin: InfoFlowPlugin
 
-  constructor(app: App, plugin: OmnivorePlugin) {
+  constructor(app: App, plugin: InfoFlowPlugin) {
     super(app, plugin)
     this.plugin = plugin
   }
@@ -40,15 +40,15 @@ export class OmnivoreSettingTab extends PluginSettingTab {
           fragment.append(
             'You can create an API key at ',
             fragment.createEl('a', {
-              text: 'https://omnivore.app/settings/api',
-              href: 'https://omnivore.app/settings/api',
+              text: 'https://infoflow.com/settings/api',
+              href: 'https://infoflow.com/settings/api',
             }),
           )
         }),
       )
       .addText((text) =>
         text
-          .setPlaceholder('Enter your Omnivore Api Key')
+          .setPlaceholder('Enter your InfoFlow Api Key')
           .setValue(this.plugin.settings.apiKey)
           .onChange(async (value) => {
             this.plugin.settings.apiKey = value
@@ -64,7 +64,7 @@ export class OmnivoreSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName('Filter')
       .setDesc(
-        "Select an Omnivore search filter type. Changing this would update the 'Custom Query' accordingly and reset the 'Last sync' timestamp",
+        "Select an InfoFlow search filter type. Changing this would update the 'Custom Query' accordingly and reset the 'Last sync' timestamp",
       )
       .addDropdown((dropdown) => {
         dropdown.addOptions(Filter)
@@ -86,8 +86,8 @@ export class OmnivoreSettingTab extends PluginSettingTab {
           fragment.append(
             'See ',
             fragment.createEl('a', {
-              text: 'https://docs.omnivore.app/using/search',
-              href: 'https://docs.omnivore.app/using/search',
+              text: 'https://docs.infoflow.com/using/search',
+              href: 'https://docs.infoflow.com/using/search',
             }),
             " for more info on search query syntax. Changing this would reset the 'Last Sync' timestamp",
           )
@@ -96,7 +96,7 @@ export class OmnivoreSettingTab extends PluginSettingTab {
       .addText((text) =>
         text
           .setPlaceholder(
-            'Enter an Omnivore custom search query if advanced filter is selected',
+            'Enter an InfoFlow custom search query if advanced filter is selected',
           )
           .setValue(this.plugin.settings.customQuery)
           .onChange(async (value) => {
@@ -114,7 +114,7 @@ export class OmnivoreSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName('Sync on startup')
       .setDesc(
-        'Check this box if you want to sync with Omnivore when the app is loaded',
+        'Check this box if you want to sync with InfoFlow when the app is loaded',
       )
       .addToggle((toggle) =>
         toggle
@@ -127,7 +127,7 @@ export class OmnivoreSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName('Frequency')
       .setDesc(
-        'Enter the frequency in minutes to sync with Omnivore automatically. 0 means manual sync',
+        'Enter the frequency in minutes to sync with InfoFlow automatically. 0 means manual sync',
       )
       .addText((text) =>
         text
@@ -151,7 +151,7 @@ export class OmnivoreSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName('Last Sync')
       .setDesc(
-        "Last time the plugin synced with Omnivore. The 'Sync' command fetches articles updated after this timestamp",
+        "Last time the plugin synced with InfoFlow. The 'Sync' command fetches articles updated after this timestamp",
       )
       .addMomentFormat((momentFormat) =>
         momentFormat
@@ -286,7 +286,7 @@ export class OmnivoreSettingTab extends PluginSettingTab {
             'Available metadata can be found at ',
             fragment.createEl('a', {
               text: 'Reference',
-              href: 'https://docs.omnivore.app/integrations/obsidian.html#front-matter',
+              href: 'https://docs.infoflow.com/integrations/obsidian.html#front-matter',
             }),
             fragment.createEl('br'),
             fragment.createEl('br'),
@@ -322,7 +322,7 @@ export class OmnivoreSettingTab extends PluginSettingTab {
             'Enter template to render articles with ',
             fragment.createEl('a', {
               text: 'Reference',
-              href: 'https://docs.omnivore.app/integrations/obsidian.html#controlling-the-layout-of-the-data-imported-to-obsidian',
+              href: 'https://docs.infoflow.com/integrations/obsidian.html#controlling-the-layout-of-the-data-imported-to-obsidian',
             }),
             fragment.createEl('br'),
             fragment.createEl('br'),
@@ -408,7 +408,7 @@ export class OmnivoreSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName('Render Highlight Color')
       .setDesc(
-        'Check this box if you want to render highlights with color used in the Omnivore App',
+        'Check this box if you want to render highlights with color used in the InfoFlow App',
       )
       .addToggle((toggle) =>
         toggle
@@ -451,7 +451,7 @@ export class OmnivoreSettingTab extends PluginSettingTab {
           .onChange(async (value) => {
             this.plugin.settings.highlightManagerId = value
               ? HighlightManagerId.HIGHLIGHTR
-              : HighlightManagerId.OMNIVORE
+              : HighlightManagerId.INFOFLOW
             await this.plugin.saveSettings()
             this.displayBlock(omnivoreHighlightConfigContainer, !value)
           }),
@@ -463,7 +463,7 @@ export class OmnivoreSettingTab extends PluginSettingTab {
       })
     this.displayBlock(
       omnivoreHighlightConfigContainer,
-      this.plugin.settings.highlightManagerId == HighlightManagerId.OMNIVORE,
+      this.plugin.settings.highlightManagerId == HighlightManagerId.INFOFLOW,
     )
     const highlighterSetting = new Setting(omnivoreHighlightConfigContainer)
     const colorPickers: { [color in string]: ColorComponent } = {}
@@ -471,7 +471,7 @@ export class OmnivoreSettingTab extends PluginSettingTab {
     highlighterSetting
       .setName('Configure highlight colors')
       .setDesc(
-        'Configure how the highlight colors in Omnivore should render in notes',
+        'Configure how the highlight colors in InfoFlow should render in notes',
       )
       .addButton((button) => {
         button.setButtonText('Save')
@@ -531,7 +531,7 @@ export class OmnivoreSettingTab extends PluginSettingTab {
 
     new Setting(advancedSettings)
       .setName('API Endpoint')
-      .setDesc("Enter the Omnivore server's API endpoint")
+      .setDesc("Enter the InfoFlow server's API endpoint")
       .addText((text) =>
         text
           .setPlaceholder('API endpoint')
@@ -550,7 +550,7 @@ export class OmnivoreSettingTab extends PluginSettingTab {
             'Enter YAML template to render the front matter with ',
             fragment.createEl('a', {
               text: 'Reference',
-              href: 'https://docs.omnivore.app/integrations/obsidian.html#front-matter-template',
+              href: 'https://docs.infoflow.com/integrations/obsidian.html#front-matter-template',
             }),
             fragment.createEl('br'),
             fragment.createEl('br'),
@@ -588,7 +588,7 @@ export class OmnivoreSettingTab extends PluginSettingTab {
       })
 
     const help = containerEl.createEl('p')
-    help.innerHTML = `For more information, please visit our <a href="https://github.com/omnivore-app/obsidian-omnivore">GitHub page</a>, email us at <a href="mailto:feedback@omnivore.app">feedback@omnivore.app</a> or join our <a href="https://discord.gg/h2z5rppzz9">Discord server</a>.`
+    help.innerHTML = `For more information, please visit our <a href="https://github.com/infoflow-app/obsidian-infoflow">GitHub page</a>, email us at <a href="mailto:feedback@infoflow.com">feedback@infoflow.com</a> or join our <a href="https://discord.gg/h2z5rppzz9">Discord server</a>.`
 
     // script to make collapsible sections
     const coll = document.getElementsByClassName('omnivore-collapsible')
