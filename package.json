@@ -1,7 +1,7 @@
 {
-	"name": "obsidian-omnivore",
+	"name": "obsidian-infoflow",
 	"version": "1.10.4",
-	"description": "This is an Omnivore plugin for Obsidian.",
+	"description": "This is an InfoFlow plugin for Obsidian.",
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
@@ -49,7 +49,6 @@
 		"typescript": "4.7.4"
 	},
 	"dependencies": {
-		"@omnivore-app/api": "^1.0.3",
 		"diff-match-patch": "^1.0.5",
 		"lodash": "^4.17.21",
 		"luxon": "^3.1.1",

@@ -7,7 +7,7 @@ export const FRONT_MATTER_VARIABLES = [
   'tags',
   'date_saved',
   'date_published',
-  'omnivore_url',
+  'infoflow_url',
   'site_name',
   'original_url',
   'description',
@@ -35,27 +35,26 @@ export enum HighlightOrder {
 
 export enum HighlightManagerId {
   HIGHLIGHTR = 'hltr',
-  OMNIVORE = 'omni',
+  INFOFLOW = 'info',
 }
 
 export type HighlightColorMapping = { [key in HighlightColors]: string }
 
-export const DEFAULT_SETTINGS: OmnivoreSettings = {
+export const DEFAULT_SETTINGS: InfoFlowSettings = {
   dateHighlightedFormat: 'yyyy-MM-dd HH:mm:ss',
   dateSavedFormat: 'yyyy-MM-dd HH:mm:ss',
   apiKey: '',
   filter: 'ALL',
   syncAt: '',
-  customQuery: '',
   template: DEFAULT_TEMPLATE,
   highlightOrder: 'LOCATION',
   syncing: false,
-  folder: 'Omnivore/{{{date}}}',
+  folder: 'InfoFlow/{{{date}}}',
   folderDateFormat: 'yyyy-MM-dd',
-  endpoint: 'https://api-prod.omnivore.app/api/graphql',
+  endpoint: 'https://app.infoflow.app',
   filename: '{{{title}}}',
   filenameDateFormat: 'yyyy-MM-dd',
-  attachmentFolder: 'Omnivore/attachments',
+  attachmentFolder: 'InfoFlow/attachments',
   version: '0.0.0',
   isSingleFile: false,
   frequency: 0,
@@ -64,7 +63,7 @@ export const DEFAULT_SETTINGS: OmnivoreSettings = {
   frontMatterTemplate: '',
   syncOnStart: true,
   enableHighlightColorRender: false,
-  highlightManagerId: HighlightManagerId.OMNIVORE,
+  highlightManagerId: HighlightManagerId.INFOFLOW,
   highlightColorMapping: {
     [HighlightColors.Yellow]: '#fff3a3',
     [HighlightColors.Red]: '#ff5582',
@@ -73,11 +72,10 @@ export const DEFAULT_SETTINGS: OmnivoreSettings = {
   },
 }
 
-export interface OmnivoreSettings {
+export interface InfoFlowSettings {
   apiKey: string
   filter: string
   syncAt: string
-  customQuery: string
   highlightOrder: string
   template: string
   syncing: boolean
